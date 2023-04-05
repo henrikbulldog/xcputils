@@ -8,6 +8,12 @@ class StreamConnector():
     """ StreamConnector base class """
 
 
+    def __init__(self, container: str = "", file_name: str = "", directory: str = ""):
+        self.container = container
+        self.file_name = file_name
+        self.directory = directory
+
+
     def read(self, output_stream: Any):
         """ Read from stream """
 

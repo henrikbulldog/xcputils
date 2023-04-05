@@ -7,8 +7,11 @@ from xcputils.streaming import StreamConnector
 class StringStreamConnector(StreamConnector):
     """ String writer """
 
+    LOG = []
+
 
     def __init__(self):
+        super().__init__()
         self.value = ""
 
 
@@ -19,4 +22,9 @@ class StringStreamConnector(StreamConnector):
 
     def write(self, input_stream):
         """ Write to stream """
-        self.value += input_stream.read().decode('utf-8')
+
+        content = input_stream.read()
+        if isinstance(content, bytes):
+            content = content.decode('utf-8')
+        self.value = content
+        StringStreamConnector.LOG.append(self.value)

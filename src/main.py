@@ -1,20 +1,13 @@
-""" example taken from: 
-    https://docs.databricks.com/dev-tools/databricks-connect.html#access-dbutils """
-
-import os
+""" Main entry point """
 
 from xcputils import XCPUtils
 
 xcputils = XCPUtils()
 
+stream_connector = xcputils.create_string_stream_connector()
+request = xcputils.create_http_request(url="https://postman-echo.com/ip")
+ingestor = xcputils.create_http_ingestor(request=request, stream_connector=stream_connector)
 
-bucket_name = os.getenv("AWS_S3_BUCKET", "My-bucket")
-folder = "bronze/eds"
-file_name = "co2emis.json"
+ingestor.ingest()
 
-connector = xcputils.create_string_stream_connector()
-
-xcputils.http.get(url="https://postman-echo.com/ip",
-    connector=connector)
-
-print(connector.read_str())
+print(stream_connector.read_str())

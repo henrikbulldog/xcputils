@@ -19,8 +19,8 @@ class TestIngestHttp(unittest.TestCase):
         self.connectors = [
             StringStreamConnector(),
             S3StreamConnector(
-                bucket_name=os.environ['AWS_S3_BUCKET'],
-                file_path="tests3streamconnector/folder/test.txt"
+                container=os.environ['AWS_S3_BUCKET'],
+                file_name="tests3streamconnector/folder/test.txt"
                 ),
             AdfsStreamConnector(
                 container="testadfsstreamconnector",
@@ -93,8 +93,8 @@ class TestIngestHttp(unittest.TestCase):
         http.get_paginated(
             url="https://api.energidataservice.dk/dataset/CO2Emis",
             create_connector=lambda offset: S3StreamConnector(
-                bucket_name=os.environ['AWS_S3_BUCKET'],
-                file_path=f"{folder}/{offset}.json"
+                container=os.environ['AWS_S3_BUCKET'],
+                file_name=f"{folder}/{offset}.json"
                 ),
             params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"},
             limit=limit,
@@ -104,8 +104,8 @@ class TestIngestHttp(unittest.TestCase):
         for offset in list(range(0, total, limit)):
             result = json.loads(
                 S3StreamConnector(
-                    bucket_name=os.environ['AWS_S3_BUCKET'],
-                    file_path=f"{folder}/{offset}.json").read_str())
+                    container=os.environ['AWS_S3_BUCKET'],
+                    file_name=f"{folder}/{offset}.json").read_str())
 
             self.assertEqual(result["total"], total)
             self.assertEqual(result["limit"], limit)

@@ -17,7 +17,7 @@ class TestS3StreamConnector(unittest.TestCase):
 
         bucket_name = os.environ['AWS_S3_BUCKET']
         file_path = "tests3streamconnector/folder/test.txt"
-        s3_connector = S3StreamConnector(bucket_name, file_path)
+        s3_connector = S3StreamConnector(container=bucket_name, file_name=file_path)
         payload = f"Testing.\n123.\næøåÆØÅ\n{datetime.datetime.now()}"
         with BytesIO() as stream:
             stream.write(payload.encode('utf-8'))

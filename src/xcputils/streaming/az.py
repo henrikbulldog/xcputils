@@ -13,13 +13,12 @@ class AdfsStreamConnector(StreamConnector):
 
     def __init__(self,
                  container: str,
-                 directory: str,
                  file_name: str,
+                 directory: str,
                  storage_account_name: str = None):
 
-        self.container = container
-        self.directory = directory
-        self.file_name = file_name
+        super().__init__(container=container, file_name=file_name, directory=directory)
+
         if storage_account_name == None:
             storage_account_name = os.getenv("ADFS_DEFAULT_STORAGE_ACCOUNT", None)
         default_credential = DefaultAzureCredential()
