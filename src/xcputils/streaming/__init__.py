@@ -1,18 +1,12 @@
 """ Connectors to read and write streams """
 
+from io import BytesIO
 import tempfile
 from typing import Any
 
 
-class StreamConnector():
-    """ StreamConnector base class """
-
-
-    def __init__(self, container: str = "", file_name: str = "", directory: str = ""):
-        self.container = container
-        self.file_name = file_name
-        self.directory = directory
-
+class StreamReader():
+    """ Stream reader base class """
 
     def read(self, output_stream: Any):
         """ Read from stream """
@@ -27,5 +21,17 @@ class StreamConnector():
             return data.read().decode('utf-8')
 
 
+class StreamWriter():
+    """ Stream writer base class """
+
     def write(self, input_stream: Any):
-        """ Write from stream """      
+        """ Write stream """
+
+
+    def write_str(self, data: str):
+        """ Write string """
+
+        with BytesIO() as stream:
+            stream.write(data.encode('utf-8'))
+            stream.seek(0)
+            self.write(stream)

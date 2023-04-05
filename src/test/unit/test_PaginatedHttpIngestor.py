@@ -8,7 +8,7 @@ from unittest.mock import patch
 from requests import Session
 from test.unit import mock_response
 from xcputils.ingestion import http
-from xcputils.streaming.string import StringStreamConnector
+from xcputils.streaming.string import StringStreamWriter
 
 
 class TestPaginatedHttpIngestor(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.stream_connector = StringStreamConnector()
+        self.stream_writer = StringStreamWriter()
 
 
 
@@ -25,25 +25,25 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
     def test_get(self, mock_get):
         """ Test xcputils.ingest.http.get """
 
-        request = http.HttpRequest(url="https://mock.com/ip")
+        http_request = http.HttpRequest(url="https://mock.com/ip")
         
-        StringStreamConnector.LOG = []
+        StringStreamWriter.LOG = []
         mock_get.side_effect = [
             mock_response(json_data={"data": [1, 2, 3]}),
             mock_response(json_data={"data": [4, 5, 6]}),
             mock_response(json_data={"data": [7, 8]}),
         ]
-        handler = http.PaginationHandler(page_size=3)
+        pagination_handler = http.PaginationHandler(page_size=3)
         ingestor = http.PaginatedHttpIngestor(
-            request=request,
-            stream_connector=self.stream_connector,
-            handler=handler)
+            http_request=http_request,
+            pagination_handler=pagination_handler,
+            get_stream_writer=lambda page_number: self.stream_writer)
         ingestor.ingest()
-        print(StringStreamConnector.LOG)
-        self.assertTrue(len(StringStreamConnector.LOG) == 3)
-        self.assertTrue(json.loads(StringStreamConnector.LOG[0]) == {"data": [1, 2, 3]})
-        self.assertTrue(json.loads(StringStreamConnector.LOG[1]) == {"data": [4, 5, 6]})
-        self.assertTrue(json.loads(StringStreamConnector.LOG[2]) == {"data": [7, 8]})
+        print(StringStreamWriter.LOG)
+        self.assertTrue(len(StringStreamWriter.LOG) == 3)
+        self.assertTrue(json.loads(StringStreamWriter.LOG[0]) == {"data": [1, 2, 3]})
+        self.assertTrue(json.loads(StringStreamWriter.LOG[1]) == {"data": [4, 5, 6]})
+        self.assertTrue(json.loads(StringStreamWriter.LOG[2]) == {"data": [7, 8]})
 
 
 if __name__ == "__main__":

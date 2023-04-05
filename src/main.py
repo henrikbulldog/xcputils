@@ -4,10 +4,10 @@ from xcputils import XCPUtils
 
 xcputils = XCPUtils()
 
-stream_connector = xcputils.create_string_stream_connector()
-request = xcputils.create_http_request(url="https://postman-echo.com/ip")
-ingestor = xcputils.create_http_ingestor(request=request, stream_connector=stream_connector)
+stream_writer = xcputils.create_string_stream_writer()
+http_request = xcputils.create_http_request(url="https://postman-echo.com/ip")
+http_ingestor = xcputils.create_http_ingestor(http_request=http_request, stream_writer=stream_writer)
 
-ingestor.ingest()
+http_ingestor.ingest()
 
-print(stream_connector.read_str())
+print(stream_writer.value)

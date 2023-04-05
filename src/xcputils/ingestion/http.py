@@ -1,118 +1,13 @@
 """ HTTP Request callable """
 
-from io import BytesIO
 import json
 from typing import Callable, ContextManager
 from enum import Enum
 import copy
 import requests
-from xcputils.batch import Batch
 from xcputils.ingestion import Ingestor
 
-from xcputils.streaming import StreamConnector
-
-def get(url: str,
-        connector: StreamConnector,
-        params: dict = None,
-        headers: dict = None,
-        auth=None) -> requests.Response:
-    """ HTTP GET request """
-
-    with requests.Session() as session:
-        response = session.get(url=url,
-                               params=params,
-                               headers=headers,
-                               auth=auth,
-                               stream=True)
-        response.raise_for_status()
-        with response as part:
-            part.raw.decode_content = True
-            connector.write(part.raw)
-    return response
-
-
-def post(url: str,
-        body: dict,
-        connector: StreamConnector,
-        params: dict = None,
-        headers: dict = None,
-        auth=None) -> requests.Response:
-    """ HTTP POST request """
-
-    with requests.Session() as session:
-        response = session.post(url=url,
-                                data=json.dumps(body),
-                                params=params,
-                                headers=headers,
-                                auth=auth,
-                                stream=True)
-        response.raise_for_status()
-        with response as part:
-            part.raw.decode_content = True
-            connector.write(part.raw)
-    return response
-
-
-def get_paginated(url: str,
-    create_connector: Callable[[int], StreamConnector],
-    limit: int,
-    maximum = int,
-    limit_param: str = "limit",
-    offset_param: str = "offset",
-    params: dict = None,
-    headers: dict = None,
-    auth = None) -> None:
-    """ Paginated HHTP GET """
-
-    batch = Batch()
-    for offset in list(range(0, maximum, limit)):
-        page_params = {key: value for key, value in params.items()}
-        page_params[limit_param] = limit
-        page_params[offset_param] = offset
-        batch.append(get,
-            url,
-            create_connector(offset),
-            page_params,
-            headers,
-            auth)
-    responses = batch()
-    for r in responses:
-        if isinstance(r, requests.HTTPError):
-            raise r
-        if isinstance(r, Exception):
-            raise r
-
-
-def post_paginated(url: str,
-    body: dict,
-    create_connector: Callable[[int], StreamConnector],
-    limit: int,
-    maximum = int,
-    limit_param: str = "limit",
-    offset_param: str = "offset",
-    params: dict = None,
-    headers: dict = None,
-    auth = None) -> None:
-    """ Paginated HHTP POST """
-
-    batch = Batch()
-    for offset in list(range(0, maximum, limit)):
-        page_params = {key: value for key, value in params.items()}
-        page_params[limit_param] = limit
-        page_params[offset_param] = offset
-        batch.append(post,
-            url,
-            body,
-            create_connector(offset),
-            page_params,
-            headers,
-            auth)
-    responses = batch()
-    for response in responses:
-        if isinstance(response, requests.HTTPError):
-            raise response
-        if isinstance(response, Exception):
-            raise response
+from xcputils.streaming import StreamWriter
 
 
 class HttpMethod(Enum):
@@ -145,15 +40,15 @@ class HttpRequest():
 class HttpIngestor(Ingestor):
     """ HTTP ingestor """
 
-    def __init__(self, request: HttpRequest, stream_connector: StreamConnector):
+    def __init__(self, http_request: HttpRequest, stream_writer: StreamWriter):
         """ Constructor """
-
-        super().__init__(stream_connector)
-        self.request = request
+        super().__init__(stream_writer)
+        self.http_request = http_request
         self.http_methods = {
             HttpMethod.GET: self._get,
             HttpMethod.POST: self._post
             }
+
 
     def _get(self, session, request, stream):
         return session.get(
@@ -162,6 +57,7 @@ class HttpIngestor(Ingestor):
             headers=request.headers,
             auth=request.auth,
             stream=stream)
+
 
     def _post(self, session, request, stream):
         return session.post(
@@ -177,22 +73,22 @@ class HttpIngestor(Ingestor):
         """ Ingest """
 
         with requests.Session() as session:
-            http_method = self.http_methods[self.request.method]
-            response = http_method(session=session, request=self.request, stream=True)
+            http_method = self.http_methods[self.http_request.method]
+            response = http_method(session=session, request=self.http_request, stream=True)
 
             response.raise_for_status()
 
             if isinstance(response, ContextManager):
                 with response as part:
                     part.raw.decode_content = True
-                    self.stream_connector.write(part.raw)
+                    self.stream_writer.write(part.raw)
             else:
                 response.raw.decode_content = True
-                self.stream_connector.write(response.raw)
+                self.stream_writer.write(response.raw)
 
 
 class PaginationHandler:
-    """ Paginated HTTP request handler """
+    """ Paginated HTTP request pagination_handler """
 
     def __init__(
         self,
@@ -239,16 +135,15 @@ class PaginatedHttpIngestor(HttpIngestor):
 
     def __init__(
         self,
-        request: HttpRequest,
-        stream_connector: StreamConnector,
-        handler: PaginationHandler,
-        file_pattern: str = "page-{page_number}.json"):
+        http_request: HttpRequest,
+        pagination_handler: PaginationHandler,
+        get_stream_writer: Callable[[int], StreamWriter]):
         """ Constructor """
 
-        super().__init__(request=request, stream_connector=stream_connector)
+        super().__init__(http_request=http_request, stream_writer=None)
 
-        self.handler = handler
-        self.file_pattern = file_pattern
+        self.pagination_handler = pagination_handler
+        self.get_stream_writer = get_stream_writer
 
 
     def ingest(self):
@@ -259,20 +154,17 @@ class PaginatedHttpIngestor(HttpIngestor):
 
         while not is_last_page:
 
-            page_request = self.handler.get_page_request(self.request, page_number=page_number)
-            self.stream_connector.file_name = self.file_pattern.replace("{page_number}", str(page_number))
+            page_request = self.pagination_handler.get_page_request(self.http_request, page_number=page_number)
 
             with requests.Session() as session:
-                http_method = self.http_methods[self.request.method]
+                http_method = self.http_methods[self.http_request.method]
                 response = http_method(session=session, request=page_request, stream=False)
 
                 response.raise_for_status()
                 payload = response.json()
 
-            with BytesIO() as stream:
-                stream.write(json.dumps(payload).encode('utf-8'))
-                stream.seek(0)
-                self.stream_connector.write(stream)
+                stream_writer = self.get_stream_writer(page_number)
+                stream_writer.write_str(json.dumps(payload))
 
-            is_last_page = self.handler.is_last_page(payload=payload, page_number=page_number)
+            is_last_page = self.pagination_handler.is_last_page(payload=payload, page_number=page_number)
             page_number += 1

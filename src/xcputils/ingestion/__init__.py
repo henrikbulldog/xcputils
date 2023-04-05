@@ -1,15 +1,15 @@
-""" Ingestiors """
+""" Ingestors """
 
 
-from xcputils.streaming import StreamConnector
+from xcputils.streaming import StreamWriter
 
 
 class Ingestor():
     """ Ingstor base class"""
 
-    def __init__(self, stream_connector: StreamConnector):
+    def __init__(self, stream_writer: StreamWriter):
         """ Constructor """
-        self.stream_connector = stream_connector
+        self.stream_writer = stream_writer
 
     def ingest(self):
         """ Ingest """

@@ -1,97 +1,92 @@
 """ Package xcputils """
 
-from xcputils.ingestion.http import HttpIngestor, HttpMethod, HttpRequest
-from xcputils.streaming import StreamConnector
-from xcputils.streaming.aws import S3StreamConnector
-from xcputils.streaming.az import AdfsStreamConnector
-from xcputils.streaming.string import StringStreamConnector
+from xcputils.ingestion.http import HttpIngestor, HttpMethod, PaginatedHttpIngestor, HttpRequest, PaginationHandler
+from xcputils.streaming import StreamWriter
+from xcputils.streaming.aws import AwsS3StreamReader, AwsS3StreamWriter, AwsS3ConnectionSettings
+from xcputils.streaming.az import AdfsStreamReader, AdfsStreamWriter, AdfsConnectionSettings
+from xcputils.streaming.string import StringStreamWriter
 
 
 class XCPUtils():
     """ Utilities for copying data """
 
-
     def create_http_request(
         self,
         url: str,
-        method: HttpMethod = "GET",
+        method: HttpMethod = HttpMethod.GET,
         params: dict = None,
         body: dict = None,
         headers: dict = None,
         auth = None) -> HttpRequest:
         """ Create a HTTTP ingestor """
 
-        return HttpRequest(url=url,
+        return HttpRequest(
+            url=url,
             method=method,
             params=params,
             body=body,
             headers=headers,
-            auth=auth)
+            auth=auth
+        )
 
 
-    def create_http_ingestor(self, request: HttpRequest, stream_connector: StreamConnector):
+    def create_http_ingestor(self, http_request: HttpRequest, stream_writer: StreamWriter) -> HttpIngestor:
         """ Create a HTTTP ingestor """
 
-        return HttpIngestor(request=request, stream_connector=stream_connector)
+        return HttpIngestor(http_request=http_request, stream_writer=stream_writer)
 
 
-    def create_string_stream_connector(self) -> StringStreamConnector:
-        """ Create a string stream connector """
+    def create_paginated_http_ingestor(
+        self,
+        http_request: HttpRequest,
+        stream_writer: StreamWriter,
+        pagination_handler: PaginationHandler,
+        file_pattern: str = "page-{page_number}.json"):
+        """ Create a paginated HTTTP ingestor """
 
-        return StringStreamConnector()
+        return PaginatedHttpIngestor(
+            http_request=http_request,
+            stream_writer=stream_writer,
+            pagination_handler=pagination_handler,
+            file_pattern=file_pattern)
 
+    def create_string_stream_writer(self) -> StringStreamWriter:
+        """ Create an AWS S3 stream writer """
 
-    def create_aws_s3_stream_connector(self,
-        bucket_name: str,
-        file_path: str,
-        aws_access_key_id: str = None,
-        aws_secret_access_key: str = None,
-        aws_session_token: str = None,
-        aws_region_name: str = None) -> S3StreamConnector:
-        """ Create an AWS S3 stream connector """
-
-        return S3StreamConnector(
-            container=bucket_name,
-            file_name=file_path,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            aws_session_token=aws_session_token,
-            aws_region_name=aws_region_name)
+        return StringStreamWriter()
 
 
-    def create_adfs_stream_connector(self,
-        container: str,
-        directory: str,
-        file_name: str,
-        storage_account_name: str = None) -> AdfsStreamConnector:
-        """ Create an Azure Data File System stream connector """
+    def create_aws_s3_stream_reader(
+        self,
+        connection_settings: AwsS3ConnectionSettings
+        ) -> AwsS3StreamReader:
+        """ Create an AWS S3 stream reader """
 
-        return AdfsStreamConnector(container, directory,
-            file_name, storage_account_name)
+        return AwsS3StreamReader(connection_settings)
 
 
-# class HttpIngestor():
-#     """ HTTP ingestor """
+    def create_aws_s3_stream_writer(
+        self,
+        connection_settings: AwsS3ConnectionSettings
+        ) -> AwsS3StreamWriter:
+        """ Create an AWS S3 stream writer """
 
-#     def get(self,
-#         url: str,
-#         connector: StreamConnector,
-#         params: dict = None,
-#         headers: dict = None,
-#         auth = None) -> None:
-#         """ HTTP GET request """
-
-#         http_get(url, connector, params, headers, auth)
+        return AwsS3StreamWriter(connection_settings)
 
 
-#     def post(self,
-#         url: str,
-#         body: dict,
-#         connector: StreamConnector,
-#         params: dict = None,
-#         headers: dict = None,
-#         auth = None) -> None:
-#         """ HTTP POST request """
+    def create_adfs_stream_reader(
+        self,
+        connection_settings: AdfsConnectionSettings
+        ) -> AdfsStreamReader:
+        """ Create an Azure Data File System stream reader """
 
-#         http_post(url, body, connector,
-#             params, headers, auth)
+        return AdfsStreamReader(connection_settings)
+
+
+    def create_adfs_stream_writer(
+        self,
+        connection_settings: AdfsConnectionSettings
+        ) -> AdfsStreamWriter:
+        """ Create an Azure Data File System stream writer """
+
+        return AdfsStreamWriter(connection_settings)

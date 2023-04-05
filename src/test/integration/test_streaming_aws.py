@@ -1,11 +1,10 @@
 """ Unit tests """
 
 import datetime
-from io import BytesIO
 import os
 import unittest
 
-from xcputils.streaming.aws import S3StreamConnector
+from xcputils.streaming.aws import AwsS3StreamReader, AwsS3StreamWriter, AwsS3ConnectionSettings
 
 
 class TestS3StreamConnector(unittest.TestCase):
@@ -15,16 +14,19 @@ class TestS3StreamConnector(unittest.TestCase):
     def test_write_read(self):
         """ xcputils.streaming.aws.S3StreamConnector write and read """
 
-        bucket_name = os.environ['AWS_S3_BUCKET']
-        file_path = "tests3streamconnector/folder/test.txt"
-        s3_connector = S3StreamConnector(container=bucket_name, file_name=file_path)
-        payload = f"Testing.\n123.\næøåÆØÅ\n{datetime.datetime.now()}"
-        with BytesIO() as stream:
-            stream.write(payload.encode('utf-8'))
-            stream.seek(0)
-            s3_connector.write(stream)
+        connection_settings = AwsS3ConnectionSettings(
+            bucket=os.environ['AWS_S3_BUCKET'],
+            file_path="tests3streamconnector/folder/test.txt")
 
-        actual_payload = s3_connector.read_str()
+        writer = AwsS3StreamWriter(connection_settings)
+
+        payload = f"Testing.\n123.\næøåÆØÅ\n{datetime.datetime.now()}"
+
+        writer.write_str(payload)
+
+        reader = AwsS3StreamReader(connection_settings)
+
+        actual_payload = reader.read_str()
 
         self.assertEqual(actual_payload, payload)
 

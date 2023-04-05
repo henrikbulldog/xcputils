@@ -1,11 +1,10 @@
 """ String writer """
 
-from typing import Any
-from xcputils.streaming import StreamConnector
+from xcputils.streaming import StreamWriter
 
 
-class StringStreamConnector(StreamConnector):
-    """ String writer """
+class StringStreamWriter(StreamWriter):
+    """ String stream writer """
 
     LOG = []
 
@@ -15,11 +14,6 @@ class StringStreamConnector(StreamConnector):
         self.value = ""
 
 
-    def read(self, output_stream: Any):
-        """ Read from stream """
-        output_stream.write(bytes(self.value, 'utf-8'))
-
-
     def write(self, input_stream):
         """ Write to stream """
 
@@ -27,4 +21,4 @@ class StringStreamConnector(StreamConnector):
         if isinstance(content, bytes):
             content = content.decode('utf-8')
         self.value = content
-        StringStreamConnector.LOG.append(self.value)
+        StringStreamWriter.LOG.append(content)
