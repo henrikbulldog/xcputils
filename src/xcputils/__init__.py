@@ -1,5 +1,6 @@
 """ Package xcputils """
 
+from typing import Callable
 from xcputils.ingestion.http import HttpIngestor, HttpMethod, PaginatedHttpIngestor, HttpRequest, PaginationHandler
 from xcputils.streaming import StreamWriter
 from xcputils.streaming.aws import AwsS3StreamReader, AwsS3StreamWriter, AwsS3ConnectionSettings
@@ -35,25 +36,60 @@ class XCPUtils():
 
         return HttpIngestor(http_request=http_request, stream_writer=stream_writer)
 
+    def create_pagination_handler(
+        self,
+        page_size: int,
+        page_size_param: str = "limit",
+        data_property: str = "data",
+        max_pages: int = 1000) -> PaginationHandler:
+        """ Create pagination handler """
+
+        return PaginationHandler(
+            page_size=page_size,
+            page_size_param=page_size_param,
+            data_property=data_property,
+            max_pages=max_pages
+        )
+
 
     def create_paginated_http_ingestor(
         self,
         http_request: HttpRequest,
-        stream_writer: StreamWriter,
         pagination_handler: PaginationHandler,
-        file_pattern: str = "page-{page_number}.json"):
+        get_stream_writer: Callable[[int], StreamWriter]
+        ) -> PaginatedHttpIngestor:
         """ Create a paginated HTTTP ingestor """
 
         return PaginatedHttpIngestor(
             http_request=http_request,
-            stream_writer=stream_writer,
             pagination_handler=pagination_handler,
-            file_pattern=file_pattern)
+            get_stream_writer=get_stream_writer)
 
     def create_string_stream_writer(self) -> StringStreamWriter:
         """ Create an AWS S3 stream writer """
 
         return StringStreamWriter()
+
+
+    def create_aws_s3_connection_settings(
+        self,
+        bucket: str, 
+        file_path: str,
+        aws_access_key_id: str = None,
+        aws_secret_access_key: str = None,
+        aws_session_token: str = None,
+        aws_region_name: str = None
+        ) -> AwsS3ConnectionSettings:
+        """ Create an AWS S3 connection settings """
+
+        return AwsS3ConnectionSettings(
+            bucket=bucket,
+            file_path=file_path,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+            aws_region_name=aws_region_name
+        )
 
 
     def create_aws_s3_stream_reader(
@@ -72,6 +108,23 @@ class XCPUtils():
         """ Create an AWS S3 stream writer """
 
         return AwsS3StreamWriter(connection_settings)
+
+
+    def create_adfs_connection_settings(
+        self,
+        container: str,
+        file_name: str,
+        directory: str,
+        storage_account_name: str = None
+        ) -> AdfsConnectionSettings:
+        """ Create an Azure Data File System connection settings """
+
+        return AdfsConnectionSettings(
+            container=container,
+            file_name=file_name,
+            directory=directory,
+            storage_account_name=storage_account_name
+            )
 
 
     def create_adfs_stream_reader(
