@@ -108,7 +108,7 @@ class PaginationHandler:
 
         page_request = copy.deepcopy(request)
         page_request.params[self.page_size_param] = self.page_size
-        page_request.params["offset"] = page_number * self.page_size
+        page_request.params["offset"] = (page_number - 1) * self.page_size
         return page_request
 
 

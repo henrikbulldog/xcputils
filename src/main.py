@@ -1,5 +1,6 @@
 """ Main entry point """
 
+import os
 from xcputils import XCPUtils
 
 xcputils = XCPUtils()
