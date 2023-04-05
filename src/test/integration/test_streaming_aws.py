@@ -7,7 +7,7 @@ import unittest
 from xcputils.streaming.aws import AwsS3StreamReader, AwsS3StreamWriter, AwsS3ConnectionSettings
 
 
-class TestS3StreamConnector(unittest.TestCase):
+class TestS3StreamWriter(unittest.TestCase):
     """ Test xcputils.streaming.aws.S3StreamConnector """
 
 

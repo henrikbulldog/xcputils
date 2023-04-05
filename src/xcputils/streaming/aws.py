@@ -64,8 +64,6 @@ class AwsS3StreamReader(StreamReader):
             self.connection_settings.file_path,
             output_stream)
 
-        client.close()
-
 
 class AwsS3StreamWriter(StreamWriter):
     """ AWS S3 stream writer """
@@ -87,6 +85,3 @@ class AwsS3StreamWriter(StreamWriter):
             self.connection_settings.bucket,
             self.connection_settings.file_path,
             Config=conf)
-
-        client.close()
- 

@@ -6,7 +6,7 @@ import datetime
 from xcputils.streaming.az import AdfsStreamWriter, AdfsConnectionSettings, AdfsStreamReader
 
 
-class TestAz(unittest.TestCase):
+class TestAdfsStreamWriter(unittest.TestCase):
     """ Test  """
 
 
