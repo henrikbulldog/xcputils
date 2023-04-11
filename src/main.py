@@ -4,7 +4,7 @@ from xcputils import XCPUtils
 
 xcputils = XCPUtils()
 
-result = xcputils.from_http(url="https://postman-echo.com/ip") \
-    .to_string()
+result = xcputils.http.read(url="https://postman-echo.com/ip") \
+    .write_to_string()
 
 print(result)

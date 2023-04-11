@@ -20,22 +20,22 @@ class TestHttpIngestor(unittest.TestCase):
             file_path="tests3streamconnector/folder/test.txt"
             )
 
-        adfs_connection_Settings = AdfsConnectionSettings(
+        adfs_connection_settings = AdfsConnectionSettings(
             container="testadfsstreamconnector",
             file_name="test.txt",
             directory="folder"
             )
 
         self.platforms = [
-            { 
+            {
                 "name": "AWS S3",
                 "stream_writer": AwsS3StreamWriter(aws_connection_settings),
                 "stream_reader": AwsS3StreamReader(aws_connection_settings),
             },
-            { 
+            {
                 "name": "ADFS",
-                "stream_writer": AdfsStreamWriter(adfs_connection_Settings),
-                "stream_reader": AdfsStreamReader(adfs_connection_Settings),
+                "stream_writer": AdfsStreamWriter(adfs_connection_settings),
+                "stream_reader": AdfsStreamReader(adfs_connection_settings),
             },
         ]
 
@@ -47,9 +47,10 @@ class TestHttpIngestor(unittest.TestCase):
 
             with self.subTest(msg=platform["name"]):
 
-                http.HttpIngestor(
-                    url="https://postman-echo.com/ip",
-                    stream_writer=platform["stream_writer"]).ingest()
+                http.HttpIngestor() \
+                    .read(url="https://postman-echo.com/ip") \
+                    .with_stream_writer(platform["stream_writer"]) \
+                    .ingest()
 
                 result = platform["stream_reader"].read_str()
 
@@ -63,9 +64,10 @@ class TestHttpIngestor(unittest.TestCase):
 
             with self.subTest(msg=platform["name"]):
 
-                http.HttpIngestor(
-                    url="https://postman-echo.com",
-                    stream_writer=platform["stream_writer"]).ingest()
+                http.HttpIngestor() \
+                    .read(url="https://postman-echo.com") \
+                    .with_stream_writer(platform["stream_writer"]) \
+                    .ingest()
 
                 result = platform["stream_reader"].read_str()
 
@@ -78,10 +80,12 @@ class TestHttpIngestor(unittest.TestCase):
         for platform in self.platforms:
 
             with self.subTest(msg=platform["name"]):
-                http.HttpIngestor(
-                    url="https://postman-echo.com/basic-auth",
-                    auth=HTTPBasicAuth('postman', 'password'),
-                    stream_writer=platform["stream_writer"]) \
+                http.HttpIngestor() \
+                    .read(
+                        url="https://postman-echo.com/basic-auth",
+                        auth=HTTPBasicAuth('postman', 'password'),
+                    ) \
+                    .with_stream_writer(platform["stream_writer"]) \
                     .ingest()
 
                 result = platform["stream_reader"].read_str()
@@ -98,11 +102,13 @@ class TestHttpIngestor(unittest.TestCase):
 
         for platform in self.platforms:
             with self.subTest(msg=platform["name"]):
-                http.HttpIngestor(
-                    url="https://postman-echo.com/post",
-                    method=http.HttpMethod.POST,
-                    body=data,
-                    stream_writer=platform["stream_writer"]) \
+                http.HttpIngestor() \
+                    .read(
+                        url="https://postman-echo.com/post",
+                        method=http.HttpMethod.POST,
+                        body=data,
+                    ) \
+                    .with_stream_writer(platform["stream_writer"]) \
                     .ingest()
 
                 result = platform["stream_reader"].read_str()

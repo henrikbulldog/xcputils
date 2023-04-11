@@ -16,7 +16,7 @@ class Ingestor():
         self.stream_writer = stream_writer
 
 
-    def to_aws_s3(
+    def write_to_aws_s3(
         self,
         bucket: str,
         file_path: str,
@@ -32,11 +32,13 @@ class Ingestor():
             aws_secret_access_key=aws_secret_access_key,
             aws_session_token=aws_session_token,
             aws_region_name=aws_region_name)
+
         self.stream_writer = AwsS3StreamWriter(aws_s3_connection_settings)
+
         self.ingest()
 
 
-    def to_adfs(
+    def write_to_adfs(
         self,
         container: str,
         file_name: str,
@@ -46,16 +48,21 @@ class Ingestor():
             container=container,
             file_name=file_name,
             directory=directory)
+
         self.stream_writer = AdfsStreamWriter(adfs_connection_settings)
+
         self.ingest()
 
 
-    def to_string(
+    def write_to_string(
         self,
         ) -> str:
         """ Write to Azure Data Lake Storage """
+
         self.stream_writer = StringStreamWriter()
+
         self.ingest()
+
         return self.stream_writer.value
 
 

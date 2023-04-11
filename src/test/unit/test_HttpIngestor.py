@@ -7,7 +7,6 @@ from test.unit import mock_response
 from requests.auth import HTTPBasicAuth
 from requests import Session
 from xcputils.ingestion import http
-from xcputils.streaming.string import StringStreamWriter
 
 
 class TestHttpIngestor(unittest.TestCase):
@@ -23,8 +22,9 @@ class TestHttpIngestor(unittest.TestCase):
         """ Test xcputils.ingest.http.get """
 
         mock_get.return_value = mock_response(json_data={"ip": "1.2.3.4"})
-        result = http.HttpIngestor(url="https://mock.com/ip") \
-            .to_string()
+        result = http.HttpIngestor() \
+            .read(url="https://mock.com/ip") \
+            .write_to_string()
         self.assertTrue("ip" in result, f"key 'ip' not in: {result}")
 
 
@@ -33,8 +33,9 @@ class TestHttpIngestor(unittest.TestCase):
         """ Test xcputils.ingest.http.get HTML """
 
         mock_get.return_value = mock_response(content="<!DOCTYPE html>")
-        result = http.HttpIngestor(url="https://mock.com") \
-            .to_string()
+        result = http.HttpIngestor() \
+            .read(url="https://mock.com") \
+            .write_to_string()
         self.assertEqual(result[0:15], "<!DOCTYPE html>")
 
 
@@ -43,10 +44,11 @@ class TestHttpIngestor(unittest.TestCase):
         """ Test xcputils.ingest.http.get authentication """
 
         mock_get.return_value = mock_response(json_data={"authenticated": True})
-        result = http.HttpIngestor(
+        result = http.HttpIngestor() \
+            .read(
             url="https://mock.com/basic-auth",
             auth=HTTPBasicAuth('postman', 'password')) \
-            .to_string()
+            .write_to_string()
         result = json.loads(result)
         self.assertEqual(result["authenticated"], True, result)
 
@@ -58,11 +60,12 @@ class TestHttpIngestor(unittest.TestCase):
         data = {"test_key": "test_value"}
 
         mock_post.return_value = mock_response(json_data={"data" : data})
-        result = http.HttpIngestor(
+        result = http.HttpIngestor() \
+            .read(
             url="https://mock.com/post",
             method=http.HttpMethod.POST,
             body=data) \
-            .to_string()
+            .write_to_string()
         result = json.loads(result)
         self.assertEqual(
             result["data"],

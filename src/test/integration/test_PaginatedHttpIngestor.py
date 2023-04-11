@@ -15,23 +15,18 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
 
 
-    def __get_connection_settings(self, page_number):
-        return AwsS3ConnectionSettings(
-            bucket=os.environ['AWS_S3_BUCKET'],
-            file_path=f"testpaginatedhttpingestor/eds/co2emis/page-{page_number}.json"
-            )
-
-
     def test_get(self):
         """ Test xcputils.ingest.http.get """
 
-        http.PaginatedHttpIngestor(
-            url="https://api.energidataservice.dk/dataset/CO2Emis",
-            params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"},
-            page_size=100,
-            data_property="records",
+        http.HttpIngestor() \
+            .read(
+                url="https://api.energidataservice.dk/dataset/CO2Emis",
+                params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"}) \
+            .with_pagination(
+                page_size=100,
+                data_property="records",
             ) \
-            .to_aws_s3(
+            .write_to_aws_s3(
                 bucket=os.environ['AWS_S3_BUCKET'],
                 file_path="testpaginatedhttpingestor/eds/co2emis/co2emis.json"
                 )
@@ -46,7 +41,8 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
         page_1 = json.loads(stream_reader.read_str())
         self.assertTrue(len(page_1["records"]) == 100)
 
-        stream_reader.connection_settings.file_path = "testpaginatedhttpingestor/eds/co2emis/co2emis.2.json"
+        stream_reader.connection_settings.file_path = \
+            "testpaginatedhttpingestor/eds/co2emis/co2emis.2.json"
         page_6 = json.loads(stream_reader.read_str())
         self.assertTrue(len(page_6["records"]) == 100)
 
