@@ -80,8 +80,8 @@ class TestHttpIngestor(unittest.TestCase):
             with self.subTest(msg=platform["name"]):
                 http.HttpIngestor(
                     url="https://postman-echo.com/basic-auth",
+                    auth=HTTPBasicAuth('postman', 'password'),
                     stream_writer=platform["stream_writer"]) \
-                    .with_auth(HTTPBasicAuth('postman', 'password')) \
                     .ingest()
 
                 result = platform["stream_reader"].read_str()
@@ -100,9 +100,9 @@ class TestHttpIngestor(unittest.TestCase):
             with self.subTest(msg=platform["name"]):
                 http.HttpIngestor(
                     url="https://postman-echo.com/post",
+                    method=http.HttpMethod.POST,
+                    body=data,
                     stream_writer=platform["stream_writer"]) \
-                    .with_method(http.HttpMethod.POST) \
-                    .with_body(data) \
                     .ingest()
 
                 result = platform["stream_reader"].read_str()

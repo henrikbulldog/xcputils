@@ -41,47 +41,32 @@ class HttpRequest():
 class HttpIngestor(Ingestor):
     """ HTTP ingestor """
 
-    def __init__(self, url: str, stream_writer: StreamWriter = None):
+    def __init__(
+        self,
+        url: str,
+        method: HttpMethod = HttpMethod.GET,
+        params: dict = None,
+        body: dict = None,
+        headers: dict = None,
+        auth = None,
+        stream_writer: StreamWriter = None,
+        ):
         """ Constructor """
 
         super().__init__(stream_writer)
 
-        self.http_request = HttpRequest(url=url)
+        self.http_request = HttpRequest(
+            url=url,
+            method=method,
+            params=params,
+            body=body,
+            headers=headers,
+            auth=auth)
 
         self.http_methods = {
             HttpMethod.GET: self._get,
             HttpMethod.POST: self._post
             }
-
-
-    def with_method(self, method: HttpMethod) -> "HttpIngestor":
-        """ HTTP method """
-        self.http_request.method = method
-        return self
-
-
-    def with_params(self, params: dict) -> "HttpIngestor":
-        """ Parameters """
-        self.http_request.params = params
-        return self
-
-
-    def with_body(self, body: dict) -> "HttpIngestor":
-        """ Body """
-        self.http_request.body = body
-        return self
-
-
-    def with_headers(self, headers: dict) -> "HttpIngestor":
-        """ Headers """
-        self.http_request.headers = headers
-        return self
-
-
-    def with_auth(self, auth) -> "HttpIngestor":
-        """ Authentication """
-        self.http_request.auth = auth
-        return self
 
 
     def _get(self, session, request, stream):
@@ -170,39 +155,32 @@ class PaginatedHttpIngestor(HttpIngestor):
     def __init__(
         self,
         url: str,
-        stream_writer: StreamWriter = None):
+        method: HttpMethod = HttpMethod.GET,
+        params: dict = None,
+        body: dict = None,
+        headers: dict = None,
+        auth = None,
+        stream_writer: StreamWriter = None,
+        page_size: int=1000,
+        page_size_param: str = "limit",
+        data_property: str = "data",
+        max_pages: int = 1000):
 
-        super().__init__(url=url)
-        self.pagination_handler = PaginationHandler(page_size=1000)
+        super().__init__(
+            url=url,
+            method=method,
+            params=params,
+            body=body,
+            headers=headers,
+            auth=auth)
+
+        self.pagination_handler = PaginationHandler(
+            page_size=page_size,
+            page_size_param=page_size_param,
+            data_property=data_property,
+            max_pages=max_pages)
+
         self.stream_writer = stream_writer
-
-
-    def with_page_size(self, page_size: int) -> "PaginatedHttpIngestor":
-        """ Set page size """
-
-        self.pagination_handler.page_size = page_size
-        return self
-
-
-    def with_page_size_param(self, page_size_param: str) -> "PaginatedHttpIngestor":
-        """ Set page size parameter """
-
-        self.pagination_handler.page_size_param = page_size_param
-        return self
-
-
-    def with_data_property(self, data_property: str) -> "PaginatedHttpIngestor":
-        """ Set data property """
-
-        self.pagination_handler.data_property = data_property
-        return self
-
-
-    def with_max_pages(self, max_pages: int) -> "PaginatedHttpIngestor":
-        """ Set max pages """
-
-        self.pagination_handler.max_pages = max_pages
-        return self
 
 
     def ingest(self):

@@ -26,9 +26,9 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
         """ Test xcputils.ingest.http.get """
 
         http.PaginatedHttpIngestor(
-            url="https://api.energidataservice.dk/dataset/CO2Emis") \
-            .with_page_size(100) \
-            .with_params({"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"}) \
+            url="https://api.energidataservice.dk/dataset/CO2Emis",
+            page_size=100,
+            params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"}) \
             .to_aws_s3(
                 bucket=os.environ['AWS_S3_BUCKET'],
                 file_path="testpaginatedhttpingestor/eds/co2emis/co2emis.json"

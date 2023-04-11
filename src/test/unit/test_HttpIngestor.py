@@ -43,8 +43,9 @@ class TestHttpIngestor(unittest.TestCase):
         """ Test xcputils.ingest.http.get authentication """
 
         mock_get.return_value = mock_response(json_data={"authenticated": True})
-        result = http.HttpIngestor(url="https://mock.com/basic-auth") \
-            .with_auth(HTTPBasicAuth('postman', 'password')) \
+        result = http.HttpIngestor(
+            url="https://mock.com/basic-auth",
+            auth=HTTPBasicAuth('postman', 'password')) \
             .to_string()
         result = json.loads(result)
         self.assertEqual(result["authenticated"], True, result)
@@ -57,9 +58,10 @@ class TestHttpIngestor(unittest.TestCase):
         data = {"test_key": "test_value"}
 
         mock_post.return_value = mock_response(json_data={"data" : data})
-        result = http.HttpIngestor(url="https://mock.com/post") \
-            .with_method(http.HttpMethod.POST) \
-            .with_body(data) \
+        result = http.HttpIngestor(
+            url="https://mock.com/post",
+            method=http.HttpMethod.POST,
+            body=data) \
             .to_string()
         result = json.loads(result)
         self.assertEqual(
