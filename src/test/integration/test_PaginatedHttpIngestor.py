@@ -27,8 +27,10 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
 
         http.PaginatedHttpIngestor(
             url="https://api.energidataservice.dk/dataset/CO2Emis",
+            params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"},
             page_size=100,
-            params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"}) \
+            data_property="records",
+            ) \
             .to_aws_s3(
                 bucket=os.environ['AWS_S3_BUCKET'],
                 file_path="testpaginatedhttpingestor/eds/co2emis/co2emis.json"
@@ -40,9 +42,13 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
                 file_path="testpaginatedhttpingestor/eds/co2emis/co2emis.1.json"
                 )
             )
-        
+
         page_1 = json.loads(stream_reader.read_str())
         self.assertTrue(len(page_1["records"]) == 100)
+
+        stream_reader.connection_settings.file_path = "testpaginatedhttpingestor/eds/co2emis/co2emis.2.json"
+        page_6 = json.loads(stream_reader.read_str())
+        self.assertTrue(len(page_6["records"]) == 100)
 
 
 if __name__ == "__main__":
