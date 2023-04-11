@@ -12,7 +12,7 @@ class AwsS3ConnectionSettings():
     """ AWS S3 connection settings """
 
     def __init__(self,
-                 bucket: str, 
+                 bucket: str,
                  file_path: str,
                  aws_access_key_id: str = None,
                  aws_secret_access_key: str = None,
@@ -71,6 +71,18 @@ class AwsS3StreamWriter(StreamWriter):
     def __init__(self, connection_settings: AwsS3ConnectionSettings):
         super().__init__()
         self.connection_settings = connection_settings
+
+
+    def get_filename(self) -> str:
+        """ Get filename """
+
+        return self.connection_settings.file_path
+
+
+    def set_filename(self, filename: str):
+        """ Set filename """
+
+        self.connection_settings.file_path = filename
 
 
     def write(self, input_stream: Any):

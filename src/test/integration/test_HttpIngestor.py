@@ -43,42 +43,51 @@ class TestHttpIngestor(unittest.TestCase):
     def test_get(self):
         """ Test xcputils.ingest.http.get """
 
-        http_request = http.HttpRequest(url="https://postman-echo.com/ip")
-
         for platform in self.platforms:
+
             with self.subTest(msg=platform["name"]):
-                ingestor = http.HttpIngestor(http_request, platform["stream_writer"])
-                ingestor.ingest()
+
+                http.HttpIngestor(
+                    url="https://postman-echo.com/ip",
+                    stream_writer=platform["stream_writer"]).ingest()
+
                 result = platform["stream_reader"].read_str()
+
                 self.assertTrue("ip" in result, f"key 'ip' not in: {result}")
 
 
     def test_get_html(self):
         """ Test xcputils.ingest.http.get HTML """
 
-        http_request = http.HttpRequest(url="https://postman-echo.com")
-
         for platform in self.platforms:
+
             with self.subTest(msg=platform["name"]):
-                ingestor = http.HttpIngestor(http_request, platform["stream_writer"])
-                ingestor.ingest()
+
+                http.HttpIngestor(
+                    url="https://postman-echo.com",
+                    stream_writer=platform["stream_writer"]).ingest()
+
                 result = platform["stream_reader"].read_str()
+
                 self.assertEqual(result[0:15], "<!DOCTYPE html>")
 
 
     def test_auth(self):
         """ Test xcputils.ingest.http.get authentication """
 
-        http_request = http.HttpRequest(
-            url="https://postman-echo.com/basic-auth",
-            auth=HTTPBasicAuth('postman', 'password'))
-        
         for platform in self.platforms:
+
             with self.subTest(msg=platform["name"]):
-                ingestor = http.HttpIngestor(http_request, platform["stream_writer"])
-                ingestor.ingest()
+                http.HttpIngestor(
+                    url="https://postman-echo.com/basic-auth",
+                    stream_writer=platform["stream_writer"]) \
+                    .with_auth(HTTPBasicAuth('postman', 'password')) \
+                    .ingest()
+
                 result = platform["stream_reader"].read_str()
+
                 result = json.loads(result)
+
                 self.assertEqual(result["authenticated"], True, result)
 
 
@@ -87,17 +96,19 @@ class TestHttpIngestor(unittest.TestCase):
 
         data = {"test_key": "test_value"}
 
-        http_request = http.HttpRequest(
-            method=http.HttpMethod.POST,
-            url="https://postman-echo.com/post",
-            body=data)
-
         for platform in self.platforms:
             with self.subTest(msg=platform["name"]):
-                ingestor = http.HttpIngestor(http_request, platform["stream_writer"])
-                ingestor.ingest()
+                http.HttpIngestor(
+                    url="https://postman-echo.com/post",
+                    stream_writer=platform["stream_writer"]) \
+                    .with_method(http.HttpMethod.POST) \
+                    .with_body(data) \
+                    .ingest()
+
                 result = platform["stream_reader"].read_str()
+
                 result = json.loads(result)
+
                 self.assertEqual(
                     result["data"],
                     data,

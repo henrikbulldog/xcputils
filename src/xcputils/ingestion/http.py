@@ -1,6 +1,7 @@
 """ HTTP Request callable """
 
 import json
+import os
 from typing import Callable, ContextManager
 from enum import Enum
 import copy
@@ -40,14 +41,47 @@ class HttpRequest():
 class HttpIngestor(Ingestor):
     """ HTTP ingestor """
 
-    def __init__(self, http_request: HttpRequest, stream_writer: StreamWriter):
+    def __init__(self, url: str, stream_writer: StreamWriter = None):
         """ Constructor """
+
         super().__init__(stream_writer)
-        self.http_request = http_request
+
+        self.http_request = HttpRequest(url=url)
+
         self.http_methods = {
             HttpMethod.GET: self._get,
             HttpMethod.POST: self._post
             }
+
+
+    def with_method(self, method: HttpMethod) -> "HttpIngestor":
+        """ HTTP method """
+        self.http_request.method = method
+        return self
+
+
+    def with_params(self, params: dict) -> "HttpIngestor":
+        """ Parameters """
+        self.http_request.params = params
+        return self
+
+
+    def with_body(self, body: dict) -> "HttpIngestor":
+        """ Body """
+        self.http_request.body = body
+        return self
+
+
+    def with_headers(self, headers: dict) -> "HttpIngestor":
+        """ Headers """
+        self.http_request.headers = headers
+        return self
+
+
+    def with_auth(self, auth) -> "HttpIngestor":
+        """ Authentication """
+        self.http_request.auth = auth
+        return self
 
 
     def _get(self, session, request, stream):
@@ -135,15 +169,40 @@ class PaginatedHttpIngestor(HttpIngestor):
 
     def __init__(
         self,
-        http_request: HttpRequest,
-        pagination_handler: PaginationHandler,
-        get_stream_writer: Callable[[int], StreamWriter]):
-        """ Constructor """
+        url: str,
+        stream_writer: StreamWriter = None):
 
-        super().__init__(http_request=http_request, stream_writer=None)
+        super().__init__(url=url)
+        self.pagination_handler = PaginationHandler(page_size=1000)
+        self.stream_writer = stream_writer
 
-        self.pagination_handler = pagination_handler
-        self.get_stream_writer = get_stream_writer
+
+    def with_page_size(self, page_size: int) -> "PaginatedHttpIngestor":
+        """ Set page size """
+
+        self.pagination_handler.page_size = page_size
+        return self
+
+
+    def with_page_size_param(self, page_size_param: str) -> "PaginatedHttpIngestor":
+        """ Set page size parameter """
+
+        self.pagination_handler.page_size_param = page_size_param
+        return self
+
+
+    def with_data_property(self, data_property: str) -> "PaginatedHttpIngestor":
+        """ Set data property """
+
+        self.pagination_handler.data_property = data_property
+        return self
+
+
+    def with_max_pages(self, max_pages: int) -> "PaginatedHttpIngestor":
+        """ Set max pages """
+
+        self.pagination_handler.max_pages = max_pages
+        return self
 
 
     def ingest(self):
@@ -154,7 +213,8 @@ class PaginatedHttpIngestor(HttpIngestor):
 
         while not is_last_page:
 
-            page_request = self.pagination_handler.get_page_request(self.http_request, page_number=page_number)
+            page_request = self.pagination_handler \
+                .get_page_request(self.http_request, page_number=page_number)
 
             with requests.Session() as session:
                 http_method = self.http_methods[self.http_request.method]
@@ -163,8 +223,13 @@ class PaginatedHttpIngestor(HttpIngestor):
                 response.raise_for_status()
                 payload = response.json()
 
-                stream_writer = self.get_stream_writer(page_number)
-                stream_writer.write_str(json.dumps(payload))
+                hold_filename = self.stream_writer.get_filename()
+                filename, ext = os.path.splitext(hold_filename)
+                self.stream_writer.set_filename(f"{filename}.{page_number}{ext}")
+                self.stream_writer.write_str(json.dumps(payload))
+                self.stream_writer.set_filename(hold_filename)
 
-            is_last_page = self.pagination_handler.is_last_page(payload=payload, page_number=page_number)
+            is_last_page = self.pagination_handler \
+                .is_last_page(payload=payload, page_number=page_number)
+
             page_number += 1

@@ -8,6 +8,7 @@ from typing import Any
 class StreamReader():
     """ Stream reader base class """
 
+
     def read(self, output_stream: Any):
         """ Read from stream """
 
@@ -23,6 +24,16 @@ class StreamReader():
 
 class StreamWriter():
     """ Stream writer base class """
+
+
+    def get_filename(self) -> str:
+        """ Get filename """
+        return ""
+
+
+    def set_filename(self, filename: str):
+        """ Set filename """
+
 
     def write(self, input_stream: Any):
         """ Write stream """

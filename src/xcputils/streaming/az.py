@@ -75,6 +75,18 @@ class AdfsStreamWriter(StreamWriter):
         self.connection_settings = connection_settings
 
 
+    def get_filename(self) -> str:
+        """ Get filename """
+
+        return self.connection_settings.file_name
+
+
+    def set_filename(self, filename: str):
+        """ Set filename """
+
+        self.connection_settings.file_name = filename
+
+
     def write(self, input_stream: Any):
         """ Write to stream """
 

@@ -25,20 +25,22 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
     def test_get(self):
         """ Test xcputils.ingest.http.get """
 
-        http_request = http.HttpRequest(
-            url="https://api.energidataservice.dk/dataset/CO2Emis",
-            params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"})
+        http.PaginatedHttpIngestor(
+            url="https://api.energidataservice.dk/dataset/CO2Emis") \
+            .with_page_size(100) \
+            .with_params({"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"}) \
+            .to_aws_s3(
+                bucket=os.environ['AWS_S3_BUCKET'],
+                file_path="testpaginatedhttpingestor/eds/co2emis/co2emis.json"
+                )
 
-        pagination_handler = http.PaginationHandler(page_size=100, data_property="records")
-
-        http_ingestor = http.PaginatedHttpIngestor(
-            http_request=http_request,
-            pagination_handler=pagination_handler,
-            get_stream_writer=lambda page_number: AwsS3StreamWriter(self.__get_connection_settings(page_number)))
-
-        http_ingestor.ingest()
-
-        stream_reader = AwsS3StreamReader(self.__get_connection_settings(1))
+        stream_reader = AwsS3StreamReader(
+            AwsS3ConnectionSettings(
+                bucket=os.environ['AWS_S3_BUCKET'],
+                file_path="testpaginatedhttpingestor/eds/co2emis/co2emis.1.json"
+                )
+            )
+        
         page_1 = json.loads(stream_reader.read_str())
         self.assertTrue(len(page_1["records"]) == 100)
 

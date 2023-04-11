@@ -16,19 +16,15 @@ class TestHttpIngestor(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.stream_writer = StringStreamWriter()
 
 
     @patch.object(Session, 'get')
     def test_get(self, mock_get):
         """ Test xcputils.ingest.http.get """
 
-        http_request = http.HttpRequest(url="https://mock.com/ip")
-
         mock_get.return_value = mock_response(json_data={"ip": "1.2.3.4"})
-        ingestor = http.HttpIngestor(http_request=http_request, stream_writer=self.stream_writer)
-        ingestor.ingest()
-        result = self.stream_writer.value
+        result = http.HttpIngestor(url="https://mock.com/ip") \
+            .to_string()
         self.assertTrue("ip" in result, f"key 'ip' not in: {result}")
 
 
@@ -36,12 +32,9 @@ class TestHttpIngestor(unittest.TestCase):
     def test_get_html(self, mock_get):
         """ Test xcputils.ingest.http.get HTML """
 
-        http_request = http.HttpRequest(url="https://mock.com")
-
         mock_get.return_value = mock_response(content="<!DOCTYPE html>")
-        ingestor = http.HttpIngestor(http_request=http_request, stream_writer=self.stream_writer)
-        ingestor.ingest()
-        result = self.stream_writer.value
+        result = http.HttpIngestor(url="https://mock.com") \
+            .to_string()
         self.assertEqual(result[0:15], "<!DOCTYPE html>")
 
 
@@ -49,14 +42,11 @@ class TestHttpIngestor(unittest.TestCase):
     def test_auth(self, mock_get):
         """ Test xcputils.ingest.http.get authentication """
 
-        http_request = http.HttpRequest(
-            url="https://mock.com/basic-auth",
-            auth=HTTPBasicAuth('postman', 'password'))
-        
         mock_get.return_value = mock_response(json_data={"authenticated": True})
-        ingestor = http.HttpIngestor(http_request=http_request, stream_writer=self.stream_writer)
-        ingestor.ingest()
-        result = json.loads(self.stream_writer.value)
+        result = http.HttpIngestor(url="https://mock.com/basic-auth") \
+            .with_auth(HTTPBasicAuth('postman', 'password')) \
+            .to_string()
+        result = json.loads(result)
         self.assertEqual(result["authenticated"], True, result)
 
 
@@ -66,15 +56,12 @@ class TestHttpIngestor(unittest.TestCase):
 
         data = {"test_key": "test_value"}
 
-        http_request = http.HttpRequest(
-            method=http.HttpMethod.POST,
-            url="https://postman-echo.com/post",
-            body=data)
-
         mock_post.return_value = mock_response(json_data={"data" : data})
-        ingestor = http.HttpIngestor(http_request=http_request, stream_writer=self.stream_writer)
-        ingestor.ingest()
-        result = json.loads(self.stream_writer.value)
+        result = http.HttpIngestor(url="https://mock.com/post") \
+            .with_method(http.HttpMethod.POST) \
+            .with_body(data) \
+            .to_string()
+        result = json.loads(result)
         self.assertEqual(
             result["data"],
             data,

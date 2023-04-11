@@ -25,20 +25,17 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
     def test_get(self, mock_get):
         """ Test xcputils.ingest.http.get """
 
-        http_request = http.HttpRequest(url="https://mock.com/ip")
-        
         StringStreamWriter.LOG = []
         mock_get.side_effect = [
             mock_response(json_data={"data": [1, 2, 3]}),
             mock_response(json_data={"data": [4, 5, 6]}),
             mock_response(json_data={"data": [7, 8]}),
         ]
-        pagination_handler = http.PaginationHandler(page_size=3)
-        ingestor = http.PaginatedHttpIngestor(
-            http_request=http_request,
-            pagination_handler=pagination_handler,
-            get_stream_writer=lambda page_number: self.stream_writer)
-        ingestor.ingest()
+
+        http.PaginatedHttpIngestor(url="https://mock.com/ip") \
+            .with_page_size(3) \
+            .to_string()
+
         print(StringStreamWriter.LOG)
         self.assertTrue(len(StringStreamWriter.LOG) == 3)
         self.assertTrue(json.loads(StringStreamWriter.LOG[0]) == {"data": [1, 2, 3]})
