@@ -3,8 +3,8 @@
 import json
 import os
 import unittest
-from xcputils.ingestion import http
-from xcputils.streaming.aws import AwsS3StreamWriter, AwsS3ConnectionSettings, AwsS3StreamReader
+from xcputils.ingestion.http import HttpIngestor, HttpRequest
+from xcputils.streaming.aws import AwsS3ConnectionSettings, AwsS3StreamReader
 
 
 class TestPaginatedHttpIngestor(unittest.TestCase):
@@ -18,8 +18,8 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
     def test_get(self):
         """ Test xcputils.ingest.http.get """
 
-        http.HttpIngestor(
-            http_request=http.HttpRequest(
+        HttpIngestor(
+            http_request=HttpRequest(
                 url="https://api.energidataservice.dk/dataset/CO2Emis",
                 params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"})
             ) \

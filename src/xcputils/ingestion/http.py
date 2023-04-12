@@ -1,5 +1,6 @@
 """ HTTP Request callable """
 
+from io import BytesIO
 import json
 import os
 from typing import ContextManager
@@ -149,7 +150,7 @@ class HttpIngestor(Ingestor):
             stream=stream)
 
 
-    def ingest(self):
+    def _ingest(self):
         """ Ingest """
 
         if self.pagination_handler:
@@ -192,7 +193,12 @@ class HttpIngestor(Ingestor):
                 hold_filename = self.stream_writer.get_filename()
                 filename, ext = os.path.splitext(hold_filename)
                 self.stream_writer.set_filename(f"{filename}.{page_number}{ext}")
-                self.stream_writer.write_str(json.dumps(payload))
+
+                with BytesIO() as stream:
+                    stream.write(json.dumps(payload).encode('utf-8'))
+                    stream.seek(0)
+                    self.stream_writer.write(stream)
+
                 self.stream_writer.set_filename(hold_filename)
 
             is_last_page = self.pagination_handler \

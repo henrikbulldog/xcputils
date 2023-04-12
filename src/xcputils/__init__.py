@@ -1,13 +1,20 @@
 """ Package xcputils """
 
+from xcputils.ingestion.file import FileIngestor
 from xcputils.ingestion.http import HttpIngestor, HttpMethod, HttpRequest
 
 
 class XCPUtils():
     """ Utilities for copying data """
 
+    def read_from_file(self, file_path: str) -> FileIngestor:
+        """ Read from file """
 
-    def read_from_http(self,
+        return FileIngestor(file_path=file_path)
+
+
+    def read_from_http(
+        self,
         url: str,
         method: HttpMethod = HttpMethod.GET,
         params: dict = None,

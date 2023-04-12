@@ -1,4 +1,4 @@
-""" String writer """
+""" String stream writer """
 
 from xcputils.streaming import StreamWriter
 

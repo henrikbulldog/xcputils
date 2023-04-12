@@ -4,6 +4,7 @@
 from xcputils.streaming import StreamWriter
 from xcputils.streaming.aws import AwsS3ConnectionSettings, AwsS3StreamWriter
 from xcputils.streaming.az import AdfsConnectionSettings, AdfsStreamWriter
+from xcputils.streaming.file import FileStreamWriter
 from xcputils.streaming.string import StringStreamWriter
 
 
@@ -35,7 +36,7 @@ class Ingestor():
 
         self.stream_writer = AwsS3StreamWriter(aws_s3_connection_settings)
 
-        self.ingest()
+        self._ingest()
 
 
     def write_to_adfs(
@@ -51,7 +52,7 @@ class Ingestor():
 
         self.stream_writer = AdfsStreamWriter(adfs_connection_settings)
 
-        self.ingest()
+        self._ingest()
 
 
     def write_to_string(
@@ -61,10 +62,18 @@ class Ingestor():
 
         self.stream_writer = StringStreamWriter()
 
-        self.ingest()
+        self._ingest()
 
         return self.stream_writer.value
 
 
-    def ingest(self):
+    def write_to_file(self, file_path: str):
+        """ Write to file """
+
+        self.stream_writer = FileStreamWriter(file_path=file_path)
+
+        self._ingest()
+
+
+    def _ingest(self):
         """ Ingest """

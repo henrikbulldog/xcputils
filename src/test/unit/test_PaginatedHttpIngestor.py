@@ -1,13 +1,11 @@
 """ Unit tests """
 
-import io
 import json
 import unittest
-from unittest import mock
 from unittest.mock import patch
-from requests import Session
 from test.unit import mock_response
-from xcputils.ingestion import http
+from requests import Session
+from xcputils.ingestion.http import HttpIngestor, HttpRequest
 from xcputils.streaming.string import StringStreamWriter
 
 
@@ -23,7 +21,7 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
 
     @patch.object(Session, "get")
     def test_get(self, mock_get):
-        """ Test xcputils.ingest.http.get """
+        """ Test HttpIngestor with pagination """
 
         StringStreamWriter.LOG = []
         mock_get.side_effect = [
@@ -32,8 +30,8 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
             mock_response(json_data={"data": [7, 8]}),
         ]
 
-        http.HttpIngestor(
-            http_request=http.HttpRequest(url="https://mock.com/ip")) \
+        HttpIngestor(
+            http_request=HttpRequest(url="https://mock.com/ip")) \
             .with_pagination(page_size=3) \
             .write_to_string()
 

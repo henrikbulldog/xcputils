@@ -1,7 +1,9 @@
 """ Unit tests """
 
+from io import BytesIO
 import unittest
 import datetime
+from xcputils.ingestion.string import StringIngestor
 
 from xcputils.streaming.az import AdfsStreamWriter, AdfsConnectionSettings, AdfsStreamReader
 
@@ -22,7 +24,10 @@ class TestAdfsStreamWriter(unittest.TestCase):
 
         payload = f"Testing.\n123.\næøåÆØÅ\n{datetime.datetime.now()}"
 
-        writer.write_str(payload)
+        with BytesIO() as stream:
+            stream.write(payload.encode('utf-8'))
+            stream.seek(0)
+            writer.write(stream)
 
         reader = AdfsStreamReader(connection_settings)
         actual_payload = reader.read_str()

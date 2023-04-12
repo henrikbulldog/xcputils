@@ -6,7 +6,8 @@ from unittest.mock import patch
 from test.unit import mock_response
 from requests.auth import HTTPBasicAuth
 from requests import Session
-from xcputils.ingestion import http
+
+from xcputils.ingestion.http import HttpIngestor, HttpMethod, HttpRequest
 
 
 class TestHttpIngestor(unittest.TestCase):
@@ -19,33 +20,33 @@ class TestHttpIngestor(unittest.TestCase):
 
     @patch.object(Session, 'get')
     def test_get(self, mock_get):
-        """ Test xcputils.ingest.http.get """
+        """ Test xcputils.ingest.get """
 
         mock_get.return_value = mock_response(json_data={"ip": "1.2.3.4"})
-        result = http.HttpIngestor(
-            http_request=http.HttpRequest(url="https://mock.com/ip")) \
+        result = HttpIngestor(
+            http_request=HttpRequest(url="https://mock.com/ip")) \
             .write_to_string()
         self.assertTrue("ip" in result, f"key 'ip' not in: {result}")
 
 
     @patch.object(Session, 'get')
     def test_get_html(self, mock_get):
-        """ Test xcputils.ingest.http.get HTML """
+        """ Test xcputils.ingest.get HTML """
 
         mock_get.return_value = mock_response(content="<!DOCTYPE html>")
-        result = http.HttpIngestor(
-            http_request=http.HttpRequest(url="https://mock.com")) \
+        result = HttpIngestor(
+            http_request=HttpRequest(url="https://mock.com")) \
             .write_to_string()
         self.assertEqual(result[0:15], "<!DOCTYPE html>")
 
 
     @patch.object(Session, 'get')
     def test_auth(self, mock_get):
-        """ Test xcputils.ingest.http.get authentication """
+        """ Test xcputils.ingest.get authentication """
 
         mock_get.return_value = mock_response(json_data={"authenticated": True})
-        result = http.HttpIngestor(
-            http_request=http.HttpRequest(
+        result = HttpIngestor(
+            http_request=HttpRequest(
                 url="https://mock.com/basic-auth",
                 auth=HTTPBasicAuth('postman', 'password'))) \
             .write_to_string()
@@ -55,15 +56,15 @@ class TestHttpIngestor(unittest.TestCase):
 
     @patch.object(Session, 'post')
     def test_post(self, mock_post):
-        """ Test xcputils.ingest.http.post """
+        """ Test xcputils.ingest.post """
 
         data = {"test_key": "test_value"}
 
         mock_post.return_value = mock_response(json_data={"data" : data})
-        result = http.HttpIngestor(
-            http_request=http.HttpRequest(
+        result = HttpIngestor(
+            http_request=HttpRequest(
                 url="https://mock.com/post",
-                method=http.HttpMethod.POST,
+                method=HttpMethod.POST,
                 body=data)
             ) \
             .write_to_string()

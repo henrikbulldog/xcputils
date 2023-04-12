@@ -37,12 +37,3 @@ class StreamWriter():
 
     def write(self, input_stream: Any):
         """ Write stream """
-
-
-    def write_str(self, data: str):
-        """ Write string """
-
-        with BytesIO() as stream:
-            stream.write(data.encode('utf-8'))
-            stream.seek(0)
-            self.write(stream)
