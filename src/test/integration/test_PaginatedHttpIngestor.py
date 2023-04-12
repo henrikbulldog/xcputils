@@ -18,10 +18,11 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
     def test_get(self):
         """ Test xcputils.ingest.http.get """
 
-        http.HttpIngestor() \
-            .read(
+        http.HttpIngestor(
+            http_request=http.HttpRequest(
                 url="https://api.energidataservice.dk/dataset/CO2Emis",
-                params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"}) \
+                params={"start": "2022-01-01T00:00", "end": "2022-01-02T00:00"})
+            ) \
             .with_pagination(
                 page_size=100,
                 data_property="records",

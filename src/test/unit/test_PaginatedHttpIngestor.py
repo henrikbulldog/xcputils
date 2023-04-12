@@ -32,8 +32,8 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
             mock_response(json_data={"data": [7, 8]}),
         ]
 
-        http.HttpIngestor() \
-            .read(url="https://mock.com/ip") \
+        http.HttpIngestor(
+            http_request=http.HttpRequest(url="https://mock.com/ip")) \
             .with_pagination(page_size=3) \
             .write_to_string()
 

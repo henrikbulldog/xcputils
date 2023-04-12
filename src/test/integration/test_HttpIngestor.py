@@ -47,8 +47,8 @@ class TestHttpIngestor(unittest.TestCase):
 
             with self.subTest(msg=platform["name"]):
 
-                http.HttpIngestor() \
-                    .read(url="https://postman-echo.com/ip") \
+                http.HttpIngestor(
+                    http_request=http.HttpRequest(url="https://postman-echo.com/ip")) \
                     .with_stream_writer(platform["stream_writer"]) \
                     .ingest()
 
@@ -64,8 +64,8 @@ class TestHttpIngestor(unittest.TestCase):
 
             with self.subTest(msg=platform["name"]):
 
-                http.HttpIngestor() \
-                    .read(url="https://postman-echo.com") \
+                http.HttpIngestor(
+                    http_request=http.HttpRequest(url="https://postman-echo.com")) \
                     .with_stream_writer(platform["stream_writer"]) \
                     .ingest()
 
@@ -80,10 +80,10 @@ class TestHttpIngestor(unittest.TestCase):
         for platform in self.platforms:
 
             with self.subTest(msg=platform["name"]):
-                http.HttpIngestor() \
-                    .read(
+                http.HttpIngestor(
+                    http_request=http.HttpRequest(
                         url="https://postman-echo.com/basic-auth",
-                        auth=HTTPBasicAuth('postman', 'password'),
+                        auth=HTTPBasicAuth('postman', 'password'))
                     ) \
                     .with_stream_writer(platform["stream_writer"]) \
                     .ingest()
@@ -102,11 +102,11 @@ class TestHttpIngestor(unittest.TestCase):
 
         for platform in self.platforms:
             with self.subTest(msg=platform["name"]):
-                http.HttpIngestor() \
-                    .read(
+                http.HttpIngestor(
+                    http_request=http.HttpRequest(
                         url="https://postman-echo.com/post",
                         method=http.HttpMethod.POST,
-                        body=data,
+                        body=data)
                     ) \
                     .with_stream_writer(platform["stream_writer"]) \
                     .ingest()

@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Callable, ContextManager
+from typing import ContextManager
 from enum import Enum
 import copy
 import requests
@@ -101,28 +101,6 @@ class HttpIngestor(Ingestor):
             HttpMethod.GET: self._get,
             HttpMethod.POST: self._post
             }
-
-
-    def read(
-        self,
-        url: str,
-        method: HttpMethod = HttpMethod.GET,
-        params: dict = None,
-        body: dict = None,
-        headers: dict = None,
-        auth = None,
-        ) -> "HttpIngestor":
-        """ HTTP request parameters """
-
-        self.http_request = HttpRequest(
-            url=url,
-            method=method,
-            params=params,
-            body=body,
-            headers=headers,
-            auth=auth)
-
-        return self
 
 
     def with_pagination(
