@@ -4,12 +4,20 @@ from xcputils.ingestion.aws import AwsS3Ingestor
 from xcputils.ingestion.az import AdfsIngestor
 from xcputils.ingestion.file import FileIngestor
 from xcputils.ingestion.http import HttpIngestor, HttpMethod, HttpRequest
+from xcputils.ingestion.string import StringIngestor
 from xcputils.streaming.aws import AwsS3ConnectionSettings
 from xcputils.streaming.az import AdfsConnectionSettings
 
 
 class XCPUtils():
     """ Utilities for copying data """
+
+
+    def read_from_string(self, data: str) -> StringIngestor:
+        """ Ingest from string """
+
+        return StringIngestor(data)
+
 
     def read_from_file(self, file_path: str) -> FileIngestor:
         """ Ingest from file """
