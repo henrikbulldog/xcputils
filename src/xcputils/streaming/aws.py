@@ -17,7 +17,8 @@ class AwsS3ConnectionSettings():
                  aws_access_key_id: str = None,
                  aws_secret_access_key: str = None,
                  aws_session_token: str = None,
-                 aws_region_name: str = None):
+                 aws_region_name: str = None,
+                 ):
 
         self.bucket = bucket
         self.file_path = file_path

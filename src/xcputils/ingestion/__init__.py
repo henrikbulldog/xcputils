@@ -43,12 +43,22 @@ class Ingestor():
         self,
         container: str,
         file_name: str,
-        directory: str):
+        directory: str,
+        storage_account_name: str = None,
+        tenant_id: str = None,
+        client_id: str = None,
+        client_secret: str = None,
+        ):
         """ Write to Azure Data Lake Storage """
         adfs_connection_settings = AdfsConnectionSettings(
             container=container,
             file_name=file_name,
-            directory=directory)
+            directory=directory,
+            storage_account_name=storage_account_name,
+            tenant_id=tenant_id,
+            client_id=client_id,
+            client_secret=client_secret,
+            )
 
         self.stream_writer = AdfsStreamWriter(adfs_connection_settings)
 

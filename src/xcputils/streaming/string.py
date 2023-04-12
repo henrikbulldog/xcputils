@@ -6,8 +6,6 @@ from xcputils.streaming import StreamWriter
 class StringStreamWriter(StreamWriter):
     """ String stream writer """
 
-    LOG = []
-
 
     def __init__(self):
         super().__init__()
@@ -21,4 +19,3 @@ class StringStreamWriter(StreamWriter):
         if isinstance(content, bytes):
             content = content.decode('utf-8')
         self.value = content
-        StringStreamWriter.LOG.append(content)

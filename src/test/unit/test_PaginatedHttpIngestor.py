@@ -30,16 +30,12 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
             mock_response(json_data={"data": [7, 8]}),
         ]
 
-        HttpIngestor(
+        result = HttpIngestor(
             http_request=HttpRequest(url="https://mock.com/ip")) \
             .with_pagination(page_size=3) \
             .write_to_string()
 
-        print(StringStreamWriter.LOG)
-        self.assertTrue(len(StringStreamWriter.LOG) == 3)
-        self.assertTrue(json.loads(StringStreamWriter.LOG[0]) == {"data": [1, 2, 3]})
-        self.assertTrue(json.loads(StringStreamWriter.LOG[1]) == {"data": [4, 5, 6]})
-        self.assertTrue(json.loads(StringStreamWriter.LOG[2]) == {"data": [7, 8]})
+        self.assertTrue(json.loads(result) == {"data": [7, 8]})
 
 
 if __name__ == "__main__":
