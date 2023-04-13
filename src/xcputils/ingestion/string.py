@@ -1,4 +1,4 @@
-""" File ingestion """
+""" String ingestion """
 
 from io import BytesIO
 from xcputils.ingestion import Ingestor
@@ -6,7 +6,7 @@ from xcputils.streaming import StreamWriter
 
 
 class StringIngestor(Ingestor):
-    """ Ingest from file """
+    """ Ingest from string """
 
     def __init__(
         self,

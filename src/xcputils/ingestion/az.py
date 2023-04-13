@@ -1,5 +1,6 @@
 """ Ingest from AWS S3 """
 
+from io import BytesIO
 from xcputils.ingestion import Ingestor
 from xcputils.streaming import StreamWriter
 from xcputils.streaming.az import AdfsConnectionSettings, AdfsStreamReader
@@ -21,6 +22,8 @@ class AdfsIngestor(Ingestor):
     def _ingest(self):
         """ Ingest """
 
-        AdfsStreamReader(self.connection_settings) \
-            .read(self.stream_writer)
-        
+        with BytesIO() as stream:
+            AdfsStreamReader(self.connection_settings) \
+                .read(stream)
+            stream.seek(0)
+            self.stream_writer.write(stream)

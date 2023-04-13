@@ -26,6 +26,7 @@ class Ingestor():
         aws_session_token: str = None,
         aws_region_name: str = None):
         """ Write to AWS S3 """
+
         aws_s3_connection_settings = AwsS3ConnectionSettings(
             bucket=bucket,
             file_path=file_path,

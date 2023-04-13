@@ -9,7 +9,7 @@ from xcputils.streaming.aws import AwsS3StreamReader, AwsS3StreamWriter, AwsS3Co
 
 
 class TestS3StreamWriter(unittest.TestCase):
-    """ Test xcputils.streaming.aws.S3StreamConnector """
+    """ Test xcputils.streaming.aws.AwsS3StreamWriter """
 
 
     def test_write_read(self):
@@ -17,7 +17,7 @@ class TestS3StreamWriter(unittest.TestCase):
 
         connection_settings = AwsS3ConnectionSettings(
             bucket=os.environ['AWS_S3_BUCKET'],
-            file_path="tests3streamconnector/folder/test.txt")
+            file_path="tests3streamwriter/test.txt")
 
         writer = AwsS3StreamWriter(connection_settings)
 
