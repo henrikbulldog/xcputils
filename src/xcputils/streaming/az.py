@@ -90,16 +90,20 @@ class AdfsStreamWriter(StreamWriter):
         self.connection_settings = connection_settings
 
 
-    def get_filename(self) -> str:
+    def get_file_path(self) -> str:
         """ Get filename """
 
-        return self.connection_settings.file_name
+        return self.connection_settings.file_name if not self.connection_settings.directory \
+            else f"{self.connection_settings.directory}/{self.connection_settings.file_name}"
 
 
-    def set_filename(self, filename: str):
+    def set_file_path(self, file_path: str):
         """ Set filename """
 
-        self.connection_settings.file_name = filename
+        directory, file_name = os.path.split(file_path)
+
+        self.connection_settings.directory = directory
+        self.connection_settings.file_name = file_name
 
 
     def write(self, input_stream: Any):

@@ -14,6 +14,42 @@ A library that makes it easy to ingest data from most common sources into most c
 - Local file
 - In-memory string
 
+# TODO
+- FTP ingestor: ftplib
+```
+import os
+
+from ftplib import FTP
+
+def is_dir(ftp, filename):
+  try:
+    ftp.size(file_name)
+    return False
+  except:
+    return True
+
+url = "ftp.dlptest.com"
+user = "dlpuser"
+password = "rNrKYTX9g7z3RgJRmxWuGHbeu"
+folder = ""
+download_path = "downloads/dlptest"
+
+os.makedirs(os.path.dirname(f"{download_path}/file.ext"), exist_ok=True)
+
+ftp = ftplib.FTP(host=url, user=user, passwd=password)
+ftp.cwd(folder)
+
+ftp.retrlines('LIST')
+
+for file_name in ftp.nlst():
+  if not is_dir(ftp, file_name):
+    print(f"Downloading {file_name} ...")
+    with open(f"{download_path}/{file_name}", 'wb') as fp:
+        ftp.retrbinary(f"RETR {file_name}", fp.write)
+
+ftp.quit()
+```
+
 # Examples
 
 ## Ingest data from a HTTP endpoint to a string

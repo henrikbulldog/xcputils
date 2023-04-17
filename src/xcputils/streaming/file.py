@@ -16,3 +16,14 @@ class FileStreamWriter(StreamWriter):
 
         with open(file=self.file_path, mode="wb") as file_stream:
             file_stream.write(input_stream.read())
+
+    def get_file_path(self) -> str:
+        """ Get filename """
+
+        return self.file_path
+
+
+    def set_file_path(self, file_path: str):
+        """ Set filename """
+
+        self.file_path = file_path

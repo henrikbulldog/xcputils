@@ -15,7 +15,9 @@ class StringStreamWriter(StreamWriter):
     def write(self, input_stream):
         """ Write to stream """
 
-        content = input_stream.read()
+        content = input_stream if isinstance(input_stream, bytes) else  input_stream.read()
         if isinstance(content, bytes):
             content = content.decode('utf-8')
-        self.value = content
+        if self.value:
+            self.value += "\n"
+        self.value += content

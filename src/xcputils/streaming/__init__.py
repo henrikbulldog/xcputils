@@ -26,12 +26,12 @@ class StreamWriter():
     """ Stream writer base class """
 
 
-    def get_filename(self) -> str:
+    def get_file_path(self) -> str:
         """ Get filename """
         return ""
 
 
-    def set_filename(self, filename: str):
+    def set_file_path(self, file_path: str):
         """ Set filename """
 
 

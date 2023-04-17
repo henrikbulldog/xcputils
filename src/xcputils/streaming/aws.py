@@ -74,16 +74,16 @@ class AwsS3StreamWriter(StreamWriter):
         self.connection_settings = connection_settings
 
 
-    def get_filename(self) -> str:
+    def get_file_path(self) -> str:
         """ Get filename """
 
         return self.connection_settings.file_path
 
 
-    def set_filename(self, filename: str):
+    def set_file_path(self, file_path: str):
         """ Set filename """
 
-        self.connection_settings.file_path = filename
+        self.connection_settings.file_path = file_path
 
 
     def write(self, input_stream: Any):

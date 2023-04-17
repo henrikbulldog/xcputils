@@ -23,7 +23,6 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
     def test_get(self, mock_get):
         """ Test HttpIngestor with pagination """
 
-        StringStreamWriter.LOG = []
         mock_get.side_effect = [
             mock_response(json_data={"data": [1, 2, 3]}),
             mock_response(json_data={"data": [4, 5, 6]}),
@@ -35,7 +34,13 @@ class TestPaginatedHttpIngestor(unittest.TestCase):
             .with_pagination(page_size=3) \
             .write_to_string()
 
-        self.assertTrue(json.loads(result) == {"data": [7, 8]})
+        result = [json.loads(line) for line in result.splitlines()]
+        print(result)
+        self.assertTrue(result == [
+            {"data": [1, 2, 3]},
+            {"data": [4, 5, 6]},
+            {"data": [7, 8]},
+            ])
 
 
 if __name__ == "__main__":

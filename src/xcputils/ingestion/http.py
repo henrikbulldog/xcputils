@@ -190,16 +190,16 @@ class HttpIngestor(Ingestor):
                 response.raise_for_status()
                 payload = response.json()
 
-                hold_filename = self.stream_writer.get_filename()
+                hold_filename = self.stream_writer.get_file_path()
                 filename, ext = os.path.splitext(hold_filename)
-                self.stream_writer.set_filename(f"{filename}.{page_number}{ext}")
+                self.stream_writer.set_file_path(f"{filename}.{page_number}{ext}")
 
                 with BytesIO() as stream:
                     stream.write(json.dumps(payload).encode('utf-8'))
                     stream.seek(0)
                     self.stream_writer.write(stream)
 
-                self.stream_writer.set_filename(hold_filename)
+                self.stream_writer.set_file_path(hold_filename)
 
             is_last_page = self.pagination_handler \
                 .is_last_page(payload=payload, page_number=page_number)
