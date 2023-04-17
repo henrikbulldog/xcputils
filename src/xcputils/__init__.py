@@ -3,6 +3,7 @@
 from xcputils.ingestion.aws import AwsS3Ingestor
 from xcputils.ingestion.az import AdfsIngestor
 from xcputils.ingestion.file import FileIngestor
+from xcputils.ingestion.ftp import FtpIngestor
 from xcputils.ingestion.http import HttpIngestor, HttpMethod, HttpRequest
 from xcputils.ingestion.string import StringIngestor
 from xcputils.streaming.aws import AwsS3ConnectionSettings
@@ -93,3 +94,22 @@ class XCPUtils():
                 client_secret=client_secret
             )
         )
+
+
+    def read_from_ftp(
+        self,
+        url: str,
+        folder: str = None,
+        file_name: str = None,
+        user: str = None,
+        password: str = None,
+    ) -> FtpIngestor:
+        """ Ingest frm FTP """
+
+        return FtpIngestor(
+            url=url,
+            folder=folder,
+            file_name=file_name,
+            user=user,
+            password=password,
+            )
