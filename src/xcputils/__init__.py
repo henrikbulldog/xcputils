@@ -1,5 +1,9 @@
 """ Package xcputils """
 
+from xcputils.checkpoints import Checkpoint
+from xcputils.checkpoints.aws import AwsS3Checkpoint
+from xcputils.checkpoints.az import AdfsCheckpoint
+from xcputils.checkpoints.file import FileCheckpoint
 from xcputils.ingestion.aws import AwsS3Ingestor
 from xcputils.ingestion.az import AdfsIngestor
 from xcputils.ingestion.file import FileIngestor
@@ -113,3 +117,54 @@ class XCPUtils():
             user=user,
             password=password,
             )
+
+    def get_checkpoint_file(self, name: str, directory: str) -> Checkpoint:
+        """ Get file checkpoint """
+
+        return FileCheckpoint(name=name,directory=directory)
+
+
+    def get_checkpoint_adfs(
+        self, 
+        name: str,
+        container: str,
+        directory: str,
+        storage_account_name: str = None,
+        tenant_id: str = None,
+        client_id: str = None,
+        client_secret: str = None,
+        ) -> Checkpoint:
+        """ Get ADFS checkpoint """
+
+        return AdfsCheckpoint(
+            name=name,
+            container=container,
+            directory=directory,
+            storage_account_name=storage_account_name,
+            tenant_id=tenant_id,
+            client_id=client_id,
+            client_secret=client_secret,
+        )
+
+
+    def get_checkpoint_awss3(
+        self, 
+        name: str,
+        bucket: str,
+        directory: str,
+        aws_access_key_id: str = None,
+        aws_secret_access_key: str = None,
+        aws_session_token: str = None,
+        aws_region_name: str = None,
+        ):
+        """ Get AWS S3 checkpoint """
+
+        return AwsS3Checkpoint(
+            name=name,
+            bucket=bucket,
+            directory=directory,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+            aws_region_name=aws_region_name,
+        )

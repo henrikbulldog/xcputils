@@ -36,7 +36,7 @@ class FtpIngestor(Ingestor):
             return True
 
 
-    def _ingest(self):
+    def ingest(self):
         """ Ingest """
 
         ftp = FTP(host=self.url, user=self.user, passwd=self.password)

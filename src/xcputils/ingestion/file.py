@@ -18,7 +18,7 @@ class FileIngestor(Ingestor):
         self.file_path = file_path
 
 
-    def _ingest(self):
+    def ingest(self):
         """ Ingest """
 
         with open(self.file_path, "rb") as file_stream:

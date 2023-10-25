@@ -19,7 +19,7 @@ class StringIngestor(Ingestor):
         self.data = data
 
 
-    def _ingest(self):
+    def ingest(self):
         """ Ingest """
 
         with BytesIO() as stream:

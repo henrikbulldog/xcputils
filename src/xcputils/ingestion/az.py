@@ -19,7 +19,7 @@ class AdfsIngestor(Ingestor):
         self.connection_settings = connection_settings
 
 
-    def _ingest(self):
+    def ingest(self):
         """ Ingest """
 
         with BytesIO() as stream:

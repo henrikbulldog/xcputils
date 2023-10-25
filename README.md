@@ -14,6 +14,30 @@ A library that makes it easy to ingest data from most common sources into most c
 - Local file
 - In-memory string
 
+## Checkpointing
+To keep track of data copied, you can store a checkpoint like this:
+
+```
+    checkpoint = xcputils.get_checkpoint_file(
+        name="dev.test.readme.checkpoint_value",
+        directory="data",
+        )
+
+
+    checkpoint.reset()
+
+    checkpoint_value = checkpoint.get(default="01-01-1999")
+    print(checkpoint_value)
+    # output: 01-01-1999
+    
+    checkpoint.set(str(datetime.now()))
+    checkpoint_value = checkpoint.get()
+    print(checkpoint_value)
+    # output: current time
+```
+
+You can also store checkpoints on AWS S3 or ADFS using `xcputils.get_checkpoint_awss3()` and `xcputils.get_checkpoint_adfs()`.
+
 # TODO
 - FTP ingestor: ftplib
 ```

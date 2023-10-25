@@ -150,7 +150,7 @@ class HttpIngestor(Ingestor):
             stream=stream)
 
 
-    def _ingest(self):
+    def ingest(self):
         """ Ingest """
 
         if self.pagination_handler:

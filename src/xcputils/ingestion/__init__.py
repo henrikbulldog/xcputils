@@ -37,7 +37,7 @@ class Ingestor():
 
         self.stream_writer = AwsS3StreamWriter(aws_s3_connection_settings)
 
-        self._ingest()
+        self.ingest()
 
 
     def write_to_adfs(
@@ -63,7 +63,7 @@ class Ingestor():
 
         self.stream_writer = AdfsStreamWriter(adfs_connection_settings)
 
-        self._ingest()
+        self.ingest()
 
 
     def write_to_string(
@@ -73,7 +73,7 @@ class Ingestor():
 
         self.stream_writer = StringStreamWriter()
 
-        self._ingest()
+        self.ingest()
 
         return self.stream_writer.value
 
@@ -83,8 +83,8 @@ class Ingestor():
 
         self.stream_writer = FileStreamWriter(file_path=file_path)
 
-        self._ingest()
+        self.ingest()
 
 
-    def _ingest(self):
+    def ingest(self):
         """ Ingest """
