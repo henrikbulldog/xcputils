@@ -3,3 +3,5 @@ requests
 boto3
 azure-storage-file-datalake
 azure-identity
+build
+twine
